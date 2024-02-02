@@ -7,6 +7,7 @@ const config = require('./config.js');
 
 const PORT = config.backend_port;
 const PC_MAC_ADDRESS = config.wake_lan_mac; // Remplacez par l'adresse MAC de votre PC
+const PC_BROADCAST_ADDRESS = config.ip_brodcast; // Remplacez par l'adresse de diffusion de votre PC
 const PC_IP_ADDRESS = config.pc_ip; // Remplacez par l'adresse IP de votre PC
 
 // Ajoutez cette ligne pour initialiser le statut
@@ -27,7 +28,7 @@ app.post('/turn-on-pc', async (req, res) => {
   console.log('on me demande d\'allumer le PC');
   try {
     // Envoyer le signal Wake-on-LAN
-    wol.wake(PC_MAC_ADDRESS);
+    wol.wake(PC_MAC_ADDRESS, { address: PC_BROADCAST_ADDRESS });
 
     // Mettre à jour le statut
     setStatus('En cours d\'allumage...');
@@ -57,8 +58,8 @@ const checkPCStatus = async () => {
   }
 };
 
-app.get('/pc-status', async (req, res) => {
-  console.log('on me demande le statut');
+app.post('/pc-status', async (req, res) => {
+  console.log('on me demande le statut', Date.now('HH:mm:ss'));
   const isReachable = await checkPCStatus();
   setStatus(isReachable ? 'Allumé' : 'Éteint');
   res.json({ status });
